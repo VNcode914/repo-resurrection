@@ -56,11 +56,11 @@ function Probe() {
   );
 }
 
-function readContent(): Array<Record<string, unknown>> {
+function readContent(): ContentItem[] {
   return JSON.parse(screen.getByTestId("content").textContent ?? "[]");
 }
 
-function readTasks(): Array<Record<string, unknown>> {
+function readTasks(): TaskItem[] {
   return JSON.parse(screen.getByTestId("tasks").textContent ?? "[]");
 }
 

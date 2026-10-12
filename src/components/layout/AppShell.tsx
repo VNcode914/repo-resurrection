@@ -205,7 +205,7 @@ function SidebarNav({ onNavigate }: { onNavigate: () => void }) {
   return (
     <nav className="flex flex-1 flex-col gap-1 px-3" aria-label="Studio">
       {navItems.map((item) => {
-        const Icon = icons[item.id]
+        const Icon = icons[item.id] ?? LayoutDashboard
         const isActive = item.to === '/' ? pathname === '/' : pathname.startsWith(item.to)
         return (
           <Link

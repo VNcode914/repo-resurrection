@@ -26,7 +26,7 @@ export function ContentModal({ item, onClose }: Props) {
   const [description, setDescription] = useState(item?.description ?? '')
   const [platform, setPlatform] = useState<Platform>(item?.platform ?? 'YouTube')
   const [status, setStatus] = useState<ContentStatus>(item?.status ?? 'idea')
-  const [format, setFormat] = useState(item?.format ?? platformFormats['YouTube'][0])
+  const [format, setFormat] = useState(item?.format ?? platformFormats['YouTube'][0] ?? 'Other')
   const [topic, setTopic] = useState(item?.topic ?? '')
   const [tags, setTags] = useState(item?.tags.join(', ') ?? '')
   const [plannedDate, setPlannedDate] = useState(item?.plannedDate ?? '')
@@ -43,7 +43,7 @@ export function ContentModal({ item, onClose }: Props) {
       description,
       platform,
       status,
-      format,
+      format: format || 'Other',
       topic,
       tags: parsedTags,
       plannedDate: plannedDate || null,
