@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useMemo } from 'react'
 import { useStore } from '@/lib/studio/store'
 import { PLATFORMS, STATUS_ORDER, statusCopy } from '@/lib/studio/types'
-import { ChannelDot } from '@/components/ui/ChannelDot'
+import { ChannelDot } from '@/components/studio/ChannelDot'
 
 export const Route = createFileRoute('/insights')({
   head: () => ({

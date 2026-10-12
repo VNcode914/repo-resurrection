@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { Check, CheckSquare, Edit2, Plus, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/studio/Button'
 import { TaskModal } from '@/components/TaskModal'
 import { useStore } from '@/lib/studio/store'
 import { useStudio } from '@/lib/studio/studio-context'

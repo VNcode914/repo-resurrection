@@ -10,9 +10,9 @@ import {
   Radio,
   Send,
 } from 'lucide-react'
-import { StatusBadge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
-import { ChannelDot } from '@/components/ui/ChannelDot'
+import { StatusBadge } from '@/components/studio/Badge'
+import { Button } from '@/components/studio/Button'
+import { ChannelDot } from '@/components/studio/ChannelDot'
 import { useStudio } from '@/lib/studio/studio-context'
 import { useStore } from '@/lib/studio/store'
 import { creator, formatDateLabel, todayString } from '@/lib/studio/types'

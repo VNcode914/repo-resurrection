@@ -17,7 +17,7 @@ import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-route
 import { creator, navItems } from '@/lib/studio/types'
 import { useStudio } from '@/lib/studio/studio-context'
 import { cn } from '@/lib/cn'
-import { Mark } from '../ui/Mark'
+import { Mark } from '../studio/Mark'
 
 const icons: Record<string, typeof LayoutDashboard> = {
   studio: LayoutDashboard,

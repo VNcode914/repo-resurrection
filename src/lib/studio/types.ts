@@ -108,7 +108,7 @@ export function todayString(): string {
 export function formatDateLabel(dateStr: string | null): string {
   if (!dateStr) return 'Not scheduled'
   const [y, m, d] = dateStr.split('-').map(Number)
-  const date = new Date(y, m - 1, d)
+  const date = new Date(y ?? 1970, (m ?? 1) - 1, d ?? 1)
   const today = todayString()
   const tomorrow = toLocalDateString(new Date(Date.now() + 86400000))
   const label = date.toLocaleDateString('en-GB', {

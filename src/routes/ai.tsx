@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { Bot, Send } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/studio/Button'
 import { useStore } from '@/lib/studio/store'
 import { statusCopy, todayString } from '@/lib/studio/types'
 

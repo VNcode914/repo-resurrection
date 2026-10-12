@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/studio/Button'
 import { useStore } from '@/lib/studio/store'
 import { useStudio } from '@/lib/studio/studio-context'
 import { creator } from '@/lib/studio/types'

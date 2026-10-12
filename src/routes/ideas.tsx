@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import { Edit2, Lightbulb, Plus, Search, Trash2 } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { ChannelDot } from '@/components/ui/ChannelDot'
-import { StatusBadge } from '@/components/ui/Badge'
+import { Button } from '@/components/studio/Button'
+import { ChannelDot } from '@/components/studio/ChannelDot'
+import { StatusBadge } from '@/components/studio/Badge'
 import { ContentModal } from '@/components/ContentModal'
 import { useStore } from '@/lib/studio/store'
 import { useStudio } from '@/lib/studio/studio-context'
@@ -18,11 +18,11 @@ import {
 } from '@/lib/studio/types'
 import { cn } from '@/lib/cn'
 
-type IdeasSearch = { new?: boolean }
+type IdeasSearch = { new?: boolean | undefined }
 
 export const Route = createFileRoute('/ideas')({
   validateSearch: (search: Record<string, unknown>): IdeasSearch => ({
-    new: search.new === true || search.new === 'true' ? true : undefined,
+    new: search['new'] === true || search['new'] === 'true' ? true : undefined,
   }),
   head: () => ({
     meta: [

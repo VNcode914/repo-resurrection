@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/studio/Button'
 import { useStore } from '@/lib/studio/store'
 import { useStudio } from '@/lib/studio/studio-context'
 import {
