@@ -2,7 +2,7 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { StoreProvider, useStore } from "@/lib/studio/store";
-import { todayString } from "@/lib/studio/types";
+import { todayString, type ContentItem, type TaskItem } from "@/lib/studio/types";
 
 function Probe() {
   const store = useStore();
