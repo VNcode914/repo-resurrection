@@ -31,7 +31,7 @@ export const Route = createFileRoute('/calendar')({
 })
 
 function CalendarPage() {
-  const { content, scheduleContent, deleteContent } = useStore()
+  const { content, deleteContent } = useStore()
   const { setNotice } = useStudio()
 
   const [viewDate, setViewDate] = useState(() => new Date())
@@ -54,8 +54,7 @@ function CalendarPage() {
 
   const year = viewDate.getFullYear()
   const month = viewDate.getMonth()
-  const firstDay = new Date(year, month, 1)
-  const startOffset = (firstDay.getDay() + 6) % 7 // Monday-first
+  const startOffset = (new Date(year, month, 1).getDay() + 6) % 7 // Monday-first
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const cells: Array<string | null> = []
   for (let i = 0; i < startOffset; i++) cells.push(null)
@@ -131,13 +130,134 @@ function CalendarPage() {
             {cells.map((dateStr, i) =>
               dateStr === null ? (
                 <div key={`empty-${i}`} />
-              ) : {
-                /* placeholder replaced below */
-              },
+              ) : (
+                <button
+                  key={dateStr}
+                  onClick={() => setSelectedDate(dateStr)}
+                  className={cn(
+                    'flex min-h-[64px] flex-col items-start gap-1 rounded-[10px] border p-1.5 text-left transition-colors sm:min-h-[76px]',
+                    selectedDate === dateStr
+                      ? 'border-copper bg-copper/5'
+                      : 'border-transparent hover:bg-ink/[0.04]',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'flex size-6 items-center justify-center rounded-full text-xs font-medium',
+                      dateStr === today ? 'bg-ink text-ivory' : 'text-ink/70',
+                    )}
+                  >
+                    {Number(dateStr.split('-')[2])}
+                  </span>
+                  <span className="flex w-full flex-col gap-0.5">
+                    {(byDate.get(dateStr) ?? []).slice(0, 2).map((item) => (
+                      <span
+                        key={item.id}
+                        className="flex w-full items-center gap-1 truncate rounded bg-pine-soft px-1 py-0.5 text-[10px] font-medium text-pine"
+                      >
+                        <ChannelDot channel={item.platform} className="size-1.5" />
+                        <span className="truncate">{item.title}</span>
+                      </span>
+                    ))}
+                    {(byDate.get(dateStr)?.length ?? 0) > 2 && (
+                      <span className="text-[10px] text-muted">
+                        +{(byDate.get(dateStr)?.length ?? 0) - 2} more
+                      </span>
+                    )}
+                  </span>
+                </button>
+              ),
             )}
           </div>
         </section>
+
+        {/* Selected day */}
+        <aside className="enter enter-delay-2 panel h-fit p-5">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="font-display text-xl font-semibold">{formatDateLabel(selectedDate)}</h2>
+            <Button variant="quiet" className="text-xs" onClick={() => setScheduleOpen(true)}>
+              <Plus className="size-3.5" />
+              Add content
+            </Button>
+          </div>
+
+          {selectedItems.length === 0 ? (
+            <div className="empty-state mt-4">
+              <p className="font-display text-lg text-ink">Nothing on this date</p>
+              <p className="mt-1 text-sm text-muted">
+                Use "Add content" to schedule a saved idea here.
+              </p>
+            </div>
+          ) : (
+            <ul className="mt-4 flex flex-col gap-3">
+              {selectedItems.map((item) => (
+                <li
+                  key={item.id}
+                  className="flex flex-col gap-2 rounded-[14px] border border-ink/6 bg-paper/40 p-4"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="text-sm font-semibold leading-snug">{item.title}</h3>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => {
+                          setEditing(item)
+                          setEditOpen(true)
+                        }}
+                        className="rounded p-1 text-muted hover:bg-ink/10 hover:text-ink"
+                        aria-label="Edit"
+                      >
+                        <Edit2 className="size-3.5" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (window.confirm('Move this content to Recently Deleted?')) {
+                            deleteContent(item.id)
+                            setNotice('Moved to Recently Deleted.')
+                          }
+                        }}
+                        className="rounded p-1 text-muted hover:bg-red-500/10 hover:text-red-600"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="size-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
+                    <ChannelDot channel={item.platform} />
+                    {item.platform}
+                    {item.format ? ` · ${item.format}` : ''}
+                  </div>
+                  <StatusBadge status={item.status} />
+                  {item.description && (
+                    <p className="line-clamp-2 text-sm text-muted">{item.description}</p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </aside>
       </div>
+
+      {scheduleOpen && (
+        <ScheduleModal
+          date={selectedDate}
+          onClose={() => setScheduleOpen(false)}
+          onCreateNew={() => {
+            setScheduleOpen(false)
+            setEditing(null)
+            setEditOpen(true)
+          }}
+        />
+      )}
+      {editOpen && (
+        <ContentModal
+          item={editing}
+          onClose={() => {
+            setEditOpen(false)
+            setEditing(null)
+          }}
+        />
+      )}
     </div>
   )
 }
