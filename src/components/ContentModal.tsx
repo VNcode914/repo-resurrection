@@ -109,7 +109,7 @@ export function ContentModal({ item, onClose }: Props) {
                 onChange={(e) => {
                   const next = e.target.value as Platform
                   setPlatform(next)
-                  setFormat(platformFormats[next][0])
+                  setFormat(platformFormats[next][0] ?? 'Other')
                 }}
                 className="field-input"
               >

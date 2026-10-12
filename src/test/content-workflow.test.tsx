@@ -94,7 +94,7 @@ describe("CreatorHub content workflow", () => {
 
     act(() => screen.getByTestId("add-idea").click());
     expect(readContent()).toHaveLength(1);
-    expect(readContent()[0].status).toBe("idea");
+    expect(readContent()[0]!.status).toBe("idea");
 
     act(() => screen.getByTestId("schedule").click());
     const after = readContent();
@@ -119,8 +119,8 @@ describe("CreatorHub content workflow", () => {
     act(() => screen.getByTestId("add-task").click());
     act(() => screen.getByTestId("toggle-task").click());
 
-    expect(readTasks()[0].done).toBe(true);
-    expect(readContent()[0].status).toBe("planned");
+    expect(readTasks()[0]!.done).toBe(true);
+    expect(readContent()[0]!.status).toBe("planned");
   });
 
   it("migrates legacy ideas, board items, and tasks without duplicates", async () => {
@@ -182,7 +182,7 @@ describe("CreatorHub content workflow", () => {
 
     const tasks = readTasks();
     expect(tasks).toHaveLength(1);
-    expect(tasks[0].contentId).toBe("c1");
-    expect(tasks[0].dueDate).toBe(todayString());
+    expect(tasks[0]!.contentId).toBe("c1");
+    expect(tasks[0]!.dueDate).toBe(todayString());
   });
 });
