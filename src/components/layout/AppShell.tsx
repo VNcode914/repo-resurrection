@@ -11,13 +11,14 @@ import {
   Settings,
   Trash2,
   X,
-} from 'lucide-react'
-import { useCallback, useEffect, useId, useRef, useState } from 'react'
-import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router'
-import { creator, navItems } from '@/lib/studio/types'
-import { useStudio } from '@/lib/studio/studio-context'
-import { cn } from '@/lib/cn'
-import { Mark } from '../studio/Mark'
+} from "lucide-react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
+import { creator, navItems } from "@/lib/studio/types";
+import { useStudio } from "@/lib/studio/studio-context";
+import { cn } from "@/lib/cn";
+import { useStore } from "@/lib/studio/store";
+import { Mark } from "../studio/Mark";
 
 const icons: Record<string, typeof LayoutDashboard> = {
   studio: LayoutDashboard,
@@ -28,64 +29,74 @@ const icons: Record<string, typeof LayoutDashboard> = {
   ai: Bot,
   bin: Trash2,
   settings: Settings,
-}
+};
 
 function formatHeaderDate() {
-  return new Date().toLocaleDateString('en-GB', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  })
+  return new Date().toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
 }
 
 export function AppShell() {
-  const { query, setQuery, notice, setNotice } = useStudio()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [toastExiting, setToastExiting] = useState(false)
-  const searchRef = useRef<HTMLInputElement>(null)
-  const searchId = useId()
-  const navigate = useNavigate()
+  const { query, setQuery, notice, setNotice } = useStudio();
+  const { hydrated, storageError } = useStore();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [toastExiting, setToastExiting] = useState(false);
+  const [headerDate, setHeaderDate] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+  const searchId = useId();
+  const navigate = useNavigate();
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      if (event.key === '/' && event.target === document.body) {
-        event.preventDefault()
-        searchRef.current?.focus()
+      if (event.key === "/" && event.target === document.body) {
+        event.preventDefault();
+        searchRef.current?.focus();
       }
-      if (event.key === 'Escape') {
-        setMenuOpen(false)
+      if (event.key === "Escape") {
+        setMenuOpen(false);
       }
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [])
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   useEffect(() => {
-    if (!notice) return
-    setToastExiting(false)
-    const exitTimer = window.setTimeout(() => setToastExiting(true), 2600)
+    setHeaderDate(formatHeaderDate());
+  }, []);
+
+  useEffect(() => {
+    if (!notice) return;
+    setToastExiting(false);
+    const exitTimer = window.setTimeout(() => setToastExiting(true), 2600);
     const removeTimer = window.setTimeout(() => {
-      setNotice(null)
-      setToastExiting(false)
-    }, 3000)
+      setNotice(null);
+      setToastExiting(false);
+    }, 3000);
     return () => {
-      window.clearTimeout(exitTimer)
-      window.clearTimeout(removeTimer)
-    }
-  }, [notice, setNotice])
+      window.clearTimeout(exitTimer);
+      window.clearTimeout(removeTimer);
+    };
+  }, [notice, setNotice]);
+
+  useEffect(() => {
+    if (storageError) setNotice(storageError);
+  }, [storageError, setNotice]);
 
   useEffect(() => {
     if (menuOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = ''
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = ''
-    }
-  }, [menuOpen])
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
 
-  const closeMenu = useCallback(() => setMenuOpen(false), [])
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   return (
     <div className="min-h-svh bg-ink text-cream">
@@ -111,6 +122,7 @@ export function AppShell() {
                 className="inline-flex size-10 items-center justify-center rounded-[10px] transition-colors duration-200 hover:bg-ink/5 lg:hidden"
                 aria-expanded={menuOpen}
                 aria-controls="mobile-nav"
+                aria-label={menuOpen ? "Close navigation" : "Open navigation"}
                 onClick={() => setMenuOpen((open) => !open)}
               >
                 {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -118,7 +130,7 @@ export function AppShell() {
               </button>
 
               <label htmlFor={searchId} className="sr-only">
-                Search the board
+                Search ideas, content, and tasks
               </label>
               <div className="flex min-w-0 flex-1 items-center gap-2 rounded-[10px] bg-ink/[0.04] px-3 py-2">
                 <Search className="size-4 shrink-0 text-muted" />
@@ -137,15 +149,16 @@ export function AppShell() {
 
               <button
                 type="button"
+                disabled={!hydrated}
                 className="hidden items-center gap-1.5 rounded-[10px] bg-copper px-3 py-2 text-sm font-medium text-ivory shadow-[var(--shadow-lift)] transition-colors duration-200 hover:bg-copper-deep sm:inline-flex"
-                onClick={() => navigate({ to: '/ideas', search: { new: true } })}
+                onClick={() => navigate({ to: "/ideas", search: { new: true } })}
               >
                 <Plus className="size-4" />
                 <span className="hidden md:inline">New idea</span>
               </button>
 
               <p className="hidden text-right text-xs text-muted md:block">
-                {formatHeaderDate()}
+                {headerDate}
                 <span className="mt-0.5 block font-medium text-ink">{creator.studio}</span>
               </p>
             </div>
@@ -175,15 +188,15 @@ export function AppShell() {
         <div
           role="status"
           className={cn(
-            'glass-chrome fixed bottom-5 right-5 z-40 max-w-sm rounded-[12px] px-4 py-3 text-sm text-ink shadow-[var(--shadow-board)]',
-            toastExiting ? 'toast-exit' : 'toast',
+            "glass-chrome fixed bottom-5 right-5 z-40 max-w-sm rounded-[12px] px-4 py-3 text-sm text-ink shadow-[var(--shadow-board)]",
+            toastExiting ? "toast-exit" : "toast",
           )}
         >
           {notice}
         </div>
       ) : null}
     </div>
-  )
+  );
 }
 
 function SidebarBrand() {
@@ -197,35 +210,36 @@ function SidebarBrand() {
         <p className="text-[11px] uppercase tracking-[0.16em] text-cream/45">Private studio</p>
       </div>
     </div>
-  )
+  );
 }
 
 function SidebarNav({ onNavigate }: { onNavigate: () => void }) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
     <nav className="flex flex-1 flex-col gap-1 px-3" aria-label="Studio">
       {navItems.map((item) => {
-        const Icon = icons[item.id] ?? LayoutDashboard
-        const isActive = item.to === '/' ? pathname === '/' : pathname.startsWith(item.to)
+        const Icon = icons[item.id] ?? LayoutDashboard;
+        const isActive = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
         return (
           <Link
             key={item.id}
             to={item.to}
             onClick={onNavigate}
             className={cn(
-              'flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm transition-colors duration-200',
+              "flex items-center gap-3 rounded-[10px] px-3 py-2 text-sm transition-colors duration-200",
               isActive
-                ? 'sidebar-active-bar bg-white/8 text-ivory'
-                : 'text-cream/70 hover:bg-white/5 hover:text-ivory',
+                ? "sidebar-active-bar bg-white/8 text-ivory"
+                : "text-cream/70 hover:bg-white/5 hover:text-ivory",
             )}
+            aria-current={isActive ? "page" : undefined}
           >
             <Icon className="size-4" />
             {item.label}
           </Link>
-        )
+        );
       })}
     </nav>
-  )
+  );
 }
 
 function SidebarUser() {
@@ -242,5 +256,5 @@ function SidebarUser() {
         <p className="truncate text-xs text-cream/45">{creator.role}</p>
       </div>
     </div>
-  )
+  );
 }

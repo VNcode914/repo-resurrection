@@ -1,0 +1,368 @@
+# CREATORHUB — FINAL PRODUCT COMPLETION, BUG FIXING & QUALITY ASSURANCE
+
+You are working on **CreatorHub**, an existing content creator workspace. Your task is to turn the current implementation into a polished, reliable, fully connected, responsive, production-quality frontend.
+
+**This is a final stabilization and completion task, NOT a request to rebuild the application from scratch.**
+
+The current project already contains most of the pages and features, but it has serious problems:
+- Text and fonts are too faint or nearly invisible.
+- Some UI elements have poor contrast or inconsistent styling.
+- Calendar, Tasks, Ideas, and Today's Content do not consistently share and update the same data.
+- Navigation, sidebars, tabs, or page transitions feel slow.
+- Some features appear implemented but do not behave correctly.
+- There may be disconnected buttons, incorrect counts, inconsistent statuses, duplicate content, sample data, or state synchronization problems.
+
+Your priority is to **inspect, repair, integrate, and test the existing application** before adding anything new.
+
+## 1. NON-NEGOTIABLE RULES
+
+1. Inspect the entire existing codebase before making changes. Identify the framework, routing, components, state management, persistence, styling system, and existing functionality.
+2. Preserve the current CreatorHub identity, existing working features, and premium dark glassmorphism aesthetic wherever possible.
+3. Do not recreate the project from scratch, replace the whole UI unnecessarily, or remove working pages.
+4. Do not add Supabase, a database, authentication, paid APIs, external backend services, or new dependencies unless absolutely necessary and explicitly justified. This project should continue using its existing architecture and local persistence.
+5. Avoid installing unnecessary packages or rewriting the application in another framework.
+6. Do not introduce fake functionality, dead buttons, placeholder pages presented as complete features, hardcoded dashboard metrics, or unnecessary sample content.
+7. Do not duplicate existing components or create multiple competing sources of data.
+8. Do not clear, overwrite, or silently migrate existing user data in a destructive way. Preserve valid existing data and handle legacy data safely.
+9. Do not sacrifice readability for visual effects. Accessibility, performance, correctness, and usability take priority over decorative animations.
+10. Finish the work by checking for errors and testing the actual workflows, not merely making the interface look finished.
+
+## 2. FIX TYPOGRAPHY, VISIBILITY, AND VISUAL CONSISTENCY FIRST
+
+The current text is almost invisible in several places. Treat this as a critical bug.
+
+Audit every page, including the dashboard, sidebar, navigation, tabs, calendar, task views, forms, modals, dropdowns, cards, settings, insights, and empty states.
+
+Requirements:
+- Use a readable font with consistent typography.
+- Establish a clear hierarchy for page titles, section headings, body text, secondary text, labels, buttons, and metadata.
+- Use sufficiently bright foreground colors against dark backgrounds.
+- Make all essential information readable without hovering.
+- Ensure muted text remains readable and is not excessively transparent.
+- Fix low-opacity text, inherited opacity, low-contrast colors, gradients behind text, invisible placeholders, and conflicting CSS classes.
+- Make inputs, dates, dropdown options, disabled states, active tabs, focus states, and validation messages easy to see.
+- Ensure icons have sufficient contrast and meaningful labels where needed.
+- Keep the premium dark glassmorphism appearance through restrained translucent surfaces, subtle borders, consistent spacing, and tasteful shadows.
+- Avoid excessive blur, glowing effects, transparent overlays, and gradients that reduce readability.
+- Make active navigation and selected tabs immediately distinguishable.
+- Keep typography, colors, radii, spacing, card styles, and button styles consistent throughout the application.
+- Check both light/dark inherited styles and global CSS rules if they are causing conflicts. Preserve the intended dark theme unless the existing product explicitly supports another theme.
+
+Create or repair a consistent design-token system using the existing styling approach. Do not add a second competing styling system.
+
+## 3. ESTABLISH ONE RELIABLE SOURCE OF TRUTH FOR CONTENT
+
+This is the most important functional requirement.
+
+Ideas, Calendar, Today's Content, content details, and related Tasks must use a shared, consistent data model. They must not each maintain separate copies of the same content.
+
+Inspect the current implementation and consolidate duplicate state where necessary.
+
+Each content item should have, at minimum:
+- A stable unique ID.
+- Title.
+- Optional description.
+- Platform, if applicable.
+- Status.
+- Scheduled date/time, if applicable.
+- Created timestamp.
+- Updated timestamp.
+- Optional linked task IDs or equivalent reliable relationships.
+
+Use the existing project conventions where practical. Avoid creating unnecessary fields or replacing stable IDs without a migration plan.
+
+Use one shared data layer or state-management mechanism appropriate to the existing architecture. All pages must read and update the same records.
+
+When a content item changes on one page, the changes must appear everywhere that item is displayed, without requiring a manual page refresh.
+
+## 4. MAKE THE CONTENT WORKFLOW ACTUALLY WORK
+
+Use the following workflow unless the existing implementation has a clearly equivalent, functioning workflow:
+
+**Idea → Planned → In Progress → In Review → Published**
+
+Requirements:
+- Creating an idea creates one content record.
+- Editing an idea updates that same record.
+- Scheduling an idea changes its scheduling information and appropriate status; it must not create another copy.
+- Moving content between workflow stages updates the existing record.
+- Publishing must happen only after an explicit user action.
+- Changing a content item's status must update dashboard counts and relevant views immediately.
+- Deleting or archiving content must be handled consistently across the application.
+- Do not mark unscheduled content as scheduled.
+- Do not automatically publish content when its scheduled date passes.
+- Do not create duplicate records when moving content between pages or stages.
+- Validate required fields and give clear feedback when an operation fails.
+
+## 5. REPAIR IDEAS AND CONTENT MANAGEMENT
+
+The Ideas page must support the complete basic workflow:
+- Create, view, edit, and delete an idea.
+- Enter a title and optional description.
+- Select a platform if the application supports platforms.
+- Set or update the status.
+- Search and filter existing content.
+- Open an item and edit it without creating a duplicate.
+- Schedule an existing idea from the same record.
+
+Make forms, buttons, dropdowns, validation, confirmation dialogs, and empty states functional.
+
+Avoid adding complicated fields or workflows that creators do not need.
+
+## 6. REPAIR THE CALENDAR COMPLETELY
+
+The calendar must use the same shared content records as Ideas and Today's Content.
+
+Required behavior:
+- Display the correct dates and scheduled items.
+- Navigate between months and dates correctly.
+- Select a date and view the items scheduled for that date.
+- Add new content from a selected date.
+- Schedule an existing idea without creating a duplicate.
+- Allow rescheduling through the existing date-selection or drag-and-drop interaction, if supported.
+- Update the content's actual scheduled date when it is rescheduled.
+- Support multiple content items on the same day.
+- Display useful content details, such as title, platform, and status, without clutter.
+- Reflect edits and status changes made on other pages.
+- Use the correct local date and time. Avoid off-by-one-day errors caused by UTC conversion or date parsing.
+- Do not show unscheduled ideas as scheduled calendar entries.
+- Provide a helpful empty state when a date has no scheduled content.
+
+The calendar must not use a separate local array of items disconnected from the shared content store.
+
+## 7. REPAIR TASKS AND THEIR RELATIONSHIPS TO CONTENT
+
+Tasks must work independently and may optionally be linked to a content item.
+
+Each task should support:
+- A stable unique ID.
+- Task title.
+- Completion status.
+- Due date, if applicable.
+- Optional notes.
+- Optional linked content ID.
+- Created and updated timestamps.
+
+Required behavior:
+- Create, edit, complete, uncomplete, and delete tasks.
+- Display tasks in the correct views.
+- Update task counts immediately after changes.
+- Show completed and incomplete tasks accurately.
+- Allow multiple tasks to be linked to one content item.
+- Allow a task to exist without linked content.
+- When opening a content item, show its related tasks if the current design supports that relationship.
+- When a task is linked to content, maintain that relationship using stable IDs, not just matching titles.
+- Completing a task must not automatically publish its content.
+- Changing content status must not automatically mark its tasks complete.
+- Deleting a content item must not silently delete unrelated tasks. Handle linked tasks according to a consistent, safe policy and explain the result to the user if needed.
+- Do not create duplicate tasks during navigation, refreshes, or repeated clicks.
+
+Use the existing Tasks interface where possible. Do not add an elaborate task-management system unless the current product already includes it.
+
+## 8. MAKE TODAY'S CONTENT AND TODAY'S TASKS ACCURATE
+
+Today's Content must display content genuinely scheduled for the user's current local date.
+
+Today's Tasks must display tasks genuinely due today, with clear completion states.
+
+Requirements:
+- Calculate the current local date correctly.
+- Exclude unscheduled ideas from Today's Content.
+- Do not display content scheduled for a different date.
+- Reflect newly scheduled, edited, rescheduled, completed, and deleted items immediately.
+- Keep content status separate from task completion status.
+- Show clear empty states with a useful action, such as scheduling content or creating a task.
+- Never fill empty dashboard sections with fake activity or hardcoded examples.
+- Ensure refreshing the application does not change the underlying dates, statuses, or relationships.
+
+## 9. FIX DASHBOARD METRICS AND CROSS-PAGE SYNCHRONIZATION
+
+All dashboard metrics must be derived from the actual shared data.
+
+Where these metrics exist, calculate them correctly:
+- Total ideas.
+- Planned content.
+- In-progress content.
+- Content in review.
+- Published content.
+- Today's scheduled content.
+- Total tasks.
+- Completed tasks.
+- Incomplete tasks.
+- Tasks due today.
+
+Do not hardcode counts.
+
+Define each metric consistently so records are not counted in multiple categories unintentionally.
+
+Whenever content or task data changes, the relevant dashboard cards, calendar entries, lists, and task counts must update automatically.
+
+Avoid full-page reloads for ordinary state changes.
+
+## 10. FIX SLOW NAVIGATION AND UNNECESSARY LOADING
+
+The sidebar, tabs, and page navigation currently feel slow. Investigate the actual cause instead of hiding it with a loading animation.
+
+Audit:
+- Unnecessary full-page reloads.
+- Repeated state initialization.
+- Repeated localStorage reads and writes.
+- Duplicate event listeners or subscriptions.
+- Unnecessary component re-renders.
+- Expensive calculations repeated on every render.
+- Large components that can be simplified safely.
+- Effects that trigger update loops.
+- Unnecessary animations, blur effects, and transitions.
+- Incorrect routing or navigation logic.
+- Console errors and failed requests.
+
+Requirements:
+- Use the existing routing system correctly.
+- Keep ordinary page navigation responsive.
+- Update only the state and UI that need to change.
+- Avoid artificial delays and unnecessary loading screens.
+- Use loading indicators only when an operation genuinely needs time.
+- Do not introduce complex caching or state libraries merely for optimization.
+- Preserve correct behavior while optimizing.
+- Do not solve slowness by removing functionality.
+
+## 11. PERSISTENCE, INITIALIZATION, AND DATA SAFETY
+
+Continue using the existing persistence approach. If the project uses localStorage, keep it unless there is a strong architectural reason to change it.
+
+Requirements:
+- Initialize application state safely.
+- Persist valid content and task changes.
+- Restore saved records correctly after refresh or reopening the browser.
+- Use stable IDs and reliable relationships.
+- Handle empty, missing, malformed, or older stored data without crashing.
+- Use a versioned, non-destructive migration if the existing data format must change.
+- Do not repeatedly seed demo content on every render or reload.
+- Do not overwrite real saved data with default sample records.
+- Do not clear localStorage as a quick fix.
+- Avoid unnecessary storage writes.
+- If storage fails, handle the error gracefully and inform the user rather than silently pretending the change was saved.
+
+If existing demo data is mixed with real user-created data, do not delete records based on guesses. Identify the source safely and preserve user-created information.
+
+## 12. FINISH THE EXISTING PRODUCT WITHOUT ADDING FEATURE BLOAT
+
+Review every existing navigation item and page.
+
+- Keep functioning pages and existing useful features.
+- Fix broken navigation and disconnected controls.
+- Ensure tabs and buttons have meaningful behavior.
+- Make forms and dialogs open, submit, close, and validate correctly.
+- Remove or repair visibly broken placeholders.
+- Avoid redundant sections that duplicate existing functionality.
+- Keep AI Companion, Insights, Settings, Recently Deleted, and other existing sections intact if they already exist and work.
+- Do not invent a backend-powered AI feature if no AI integration exists.
+- Do not add integrations, analytics services, authentication, subscriptions, team collaboration, or other major features as part of this repair.
+- If a feature genuinely requires an unavailable service, provide a clear honest state rather than fake results.
+- Maintain the existing responsive layout on desktop, tablet, and mobile.
+
+The finished application should feel cohesive and straightforward, not overloaded.
+
+## 13. ACCESSIBILITY AND INTERACTION QUALITY
+
+Check that:
+- Text has sufficient contrast.
+- Buttons and interactive controls have visible hover, focus, active, and disabled states.
+- Inputs have visible labels and readable placeholders.
+- Keyboard navigation works for common interactions.
+- Dialogs and dropdowns behave correctly.
+- Destructive actions require appropriate confirmation.
+- Empty states explain what the user can do next.
+- Success and error feedback is visible and understandable.
+- Layouts do not overflow or hide essential controls on smaller screens.
+
+Do not use color alone to communicate a status.
+
+## 14. REQUIRED TESTING BEFORE YOU FINISH
+
+Do not stop after editing the UI. Run the checks supported by the existing project and fix any failures introduced by your changes.
+
+At minimum, verify these workflows:
+
+**Test A — Create and schedule content**
+1. Create an idea called “Instagram Reel Test”.
+2. Confirm it appears once in Ideas.
+3. Schedule it for a future date in the Calendar.
+4. Confirm it appears on the correct date.
+5. Confirm it does not appear in Today's Content unless that date is today.
+6. Edit its title and confirm the change appears everywhere.
+7. Reschedule it and confirm the old calendar date no longer shows it.
+8. Change its status and verify dashboard counts.
+
+**Test B — Tasks**
+1. Create a task called “Write Reel Caption”.
+2. Link it to “Instagram Reel Test”.
+3. Confirm the task appears in Tasks and is linked to the correct content item.
+4. Set its due date to today and confirm it appears in Today's Tasks.
+5. Complete and uncomplete it.
+6. Confirm task counts and completion states update.
+7. Confirm completing the task does not publish the content.
+
+**Test C — Persistence**
+1. Refresh the application.
+2. Confirm content, scheduled dates, statuses, tasks, and relationships remain correct.
+3. Confirm no duplicate records or demo items are inserted.
+
+**Test D — Visual quality**
+1. Inspect every major page for faint or invisible text.
+2. Inspect sidebar labels, tabs, buttons, forms, dropdowns, modal text, and muted metadata.
+3. Confirm no text blends into its background.
+4. Check desktop and mobile layouts.
+
+**Test E — Stability and performance**
+1. Navigate repeatedly between Dashboard, Ideas, Calendar, and Tasks.
+2. Confirm data remains synchronized without manual refresh.
+3. Check for console errors, runtime errors, infinite update loops, and broken routes.
+4. Confirm the app builds and runs using the existing project commands, where supported.
+
+Use temporary test records only if they can be removed safely. Never delete real user data during testing. Do not claim that a test passed if it was not actually performed.
+
+## 15. IMPLEMENTATION ORDER
+
+Work in this order to minimize regressions:
+
+1. Inspect the current application and identify root causes.
+2. Fix global typography, contrast, and visibility issues.
+3. Repair the shared content/task data model and synchronization.
+4. Repair Ideas and Calendar integration.
+5. Repair Tasks and task-content relationships.
+6. Repair Today's Content, Today's Tasks, and dashboard metrics.
+7. Fix persistence, initialization, date handling, and data safety.
+8. Optimize navigation and rendering.
+9. Repair other broken existing interactions.
+10. Run the required tests, inspect the final UI, and resolve remaining regressions.
+
+Make changes directly in the existing project. Prefer small, coherent fixes over broad rewrites.
+
+If an existing feature already works, do not rewrite it unnecessarily. If two implementations conflict, identify the source of truth and consolidate them rather than layering on another workaround.
+
+## 16. FINAL ACCEPTANCE CRITERIA
+
+CreatorHub is not finished until:
+
+- Text is clearly visible and readable across all major pages.
+- The design remains polished, consistent, premium, and responsive.
+- Ideas, Calendar, Today's Content, and content status views use the same records.
+- Tasks and Today's Tasks show correct data and completion states.
+- Content-task relationships are reliable.
+- Dashboard metrics reflect actual records.
+- Scheduling and local dates work correctly.
+- Data persists safely after refresh.
+- Navigation is responsive and does not cause unnecessary reloads.
+- Existing working pages and features remain intact.
+- No obvious broken buttons, duplicate records, fake counts, or synchronization failures remain.
+- The project builds and runs successfully, and supported tests have been performed.
+
+At the end, provide a concise completion report listing:
+1. The main bugs found.
+2. The files or components changed.
+3. The workflows and tests actually verified.
+4. Any remaining bugs or limitations.
+5. Any actions that still require manual configuration.
+
+**Do not simply describe what should be done. Implement the fixes in the existing codebase, verify them, and report honestly what is complete. Prioritize correctness, readability, synchronization, and stability over adding new features.**

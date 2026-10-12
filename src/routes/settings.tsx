@@ -1,44 +1,43 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
-import { Button } from '@/components/studio/Button'
-import { useStore } from '@/lib/studio/store'
-import { useStudio } from '@/lib/studio/studio-context'
-import { creator } from '@/lib/studio/types'
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { Button } from "@/components/studio/Button";
+import { useStore } from "@/lib/studio/store";
+import { useStudio } from "@/lib/studio/studio-context";
+import { creator } from "@/lib/studio/types";
 
-export const Route = createFileRoute('/settings')({
+export const Route = createFileRoute("/settings")({
   head: () => ({
     meta: [
-      { title: 'Settings · CreatorHub' },
-      { name: 'description', content: 'Your studio profile and data settings.' },
-      { property: 'og:title', content: 'Settings · CreatorHub' },
-      { property: 'og:description', content: 'Your studio profile and data settings.' },
-      { property: 'og:type', content: 'website' },
-      { name: 'twitter:card', content: 'summary_large_image' },
+      { title: "Settings · CreatorHub" },
+      { name: "description", content: "Your studio profile and data settings." },
+      { property: "og:title", content: "Settings · CreatorHub" },
+      { property: "og:description", content: "Your studio profile and data settings." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Settings,
-})
+});
 
 function Settings() {
-  const { content, tasks } = useStore()
-  const { setNotice } = useStudio()
-  const [confirming, setConfirming] = useState(false)
+  const { content, tasks, hydrated, clearAllData } = useStore();
+  const { setNotice } = useStudio();
+  const [confirming, setConfirming] = useState(false);
 
-  const active = content.filter((c) => !c.deletedAt).length
-  const deleted = content.length - active
+  const active = content.filter((c) => !c.deletedAt).length;
+  const deleted = content.length - active;
 
   function exportData() {
-    const blob = new Blob(
-      [JSON.stringify({ content, tasks }, null, 2)],
-      { type: 'application/json' },
-    )
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'creatorhub-backup.json'
-    a.click()
-    URL.revokeObjectURL(url)
-    setNotice('Backup downloaded.')
+    const blob = new Blob([JSON.stringify({ content, tasks }, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "creatorhub-backup.json";
+    a.click();
+    URL.revokeObjectURL(url);
+    setNotice("Backup downloaded.");
   }
 
   return (
@@ -75,18 +74,20 @@ function Settings() {
       <section className="enter enter-delay-2 panel p-5 sm:p-6">
         <h2 className="font-display text-xl font-semibold">Your data</h2>
         <p className="mt-2 text-sm text-muted">
-          Everything is saved in this browser. You currently have {active} content item
-          {active === 1 ? '' : 's'}, {deleted} in Recently Deleted, and {tasks.length} task
-          {tasks.length === 1 ? '' : 's'}.
+          Everything is saved in this browser.{" "}
+          {hydrated
+            ? `You currently have ${active} content item${active === 1 ? "" : "s"}, ${deleted} in Recently Deleted, and ${tasks.length} task${tasks.length === 1 ? "" : "s"}.`
+            : "Loading your saved data…"}
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button variant="quiet" onClick={exportData}>
+          <Button variant="quiet" disabled={!hydrated} onClick={exportData}>
             Download backup (JSON)
           </Button>
           {!confirming ? (
             <Button
               variant="ghost"
               className="text-red-600 hover:bg-red-500/10"
+              disabled={!hydrated}
               onClick={() => setConfirming(true)}
             >
               Clear all data
@@ -98,10 +99,9 @@ function Settings() {
                 variant="ghost"
                 className="text-red-600 hover:bg-red-500/10"
                 onClick={() => {
-                  window.localStorage.removeItem('creatorhub_content_v2')
-                  window.localStorage.removeItem('creatorhub_tasks_v2')
-                  window.localStorage.setItem('creatorhub_migrated_v2', '1')
-                  window.location.reload()
+                  clearAllData();
+                  setConfirming(false);
+                  setNotice("All CreatorHub data was cleared from this browser.");
                 }}
               >
                 Yes, erase
@@ -114,5 +114,5 @@ function Settings() {
         </div>
       </section>
     </div>
-  )
+  );
 }

@@ -1,46 +1,62 @@
-import { useState } from 'react'
-import { X } from 'lucide-react'
-import { Button } from '@/components/studio/Button'
-import { ChannelDot } from '@/components/studio/ChannelDot'
-import { useStore } from '@/lib/studio/store'
-import { useStudio } from '@/lib/studio/studio-context'
-import { formatDateLabel } from '@/lib/studio/types'
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
+import { Button } from "@/components/studio/Button";
+import { ChannelDot } from "@/components/studio/ChannelDot";
+import { useStore } from "@/lib/studio/store";
+import { useStudio } from "@/lib/studio/studio-context";
+import { formatDateLabel } from "@/lib/studio/types";
 
 type Props = {
-  date: string // YYYY-MM-DD
-  onClose: () => void
-  onCreateNew: () => void
-}
+  date: string; // YYYY-MM-DD
+  onClose: () => void;
+  onCreateNew: () => void;
+};
 
 /** Pick an existing saved idea/content item and assign it to a date. */
 export function ScheduleModal({ date, onClose, onCreateNew }: Props) {
-  const { content, scheduleContent } = useStore()
-  const { setNotice } = useStudio()
-  const [selectedId, setSelectedId] = useState('')
+  const { content, scheduleContent } = useStore();
+  const { setNotice } = useStudio();
+  const [selectedId, setSelectedId] = useState("");
 
-  const candidates = content.filter((c) => !c.deletedAt)
-  const selected = candidates.find((c) => c.id === selectedId)
+  const candidates = content.filter((c) => !c.deletedAt);
+  const selected = candidates.find((c) => c.id === selectedId);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
 
   function onSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!selected) return
-    scheduleContent(selected.id, date)
-    setNotice(`"${selected.title}" scheduled for ${formatDateLabel(date)}.`)
-    onClose()
+    e.preventDefault();
+    if (!selected) return;
+    scheduleContent(selected.id, date);
+    setNotice(`"${selected.title}" scheduled for ${formatDateLabel(date)}.`);
+    onClose();
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="mobile-overlay" onClick={onClose} aria-hidden="true" />
-      <div className="enter relative z-50 max-h-[90svh] w-full max-w-[480px] overflow-y-auto rounded-[24px] bg-ivory p-6 shadow-2xl">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="schedule-dialog-title"
+        className="enter relative z-50 max-h-[90svh] w-full max-w-[480px] overflow-y-auto rounded-[24px] bg-ivory p-6 shadow-2xl"
+      >
         <div className="flex items-center justify-between pb-4">
           <div>
-            <h2 className="font-display text-xl font-semibold">Add content</h2>
+            <h2 id="schedule-dialog-title" className="font-display text-xl font-semibold">
+              Add content
+            </h2>
             <p className="mt-0.5 text-sm text-muted">{formatDateLabel(date)}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
+            aria-label="Close dialog"
             className="rounded-[10px] p-2 text-muted hover:bg-ink/5 hover:text-ink"
           >
             <X className="size-5" />
@@ -59,16 +75,16 @@ export function ScheduleModal({ date, onClose, onCreateNew }: Props) {
           </div>
         ) : (
           <form onSubmit={onSubmit} className="flex flex-col gap-4">
-            <div>
-              <label className="field-label">Choose an existing idea or content item</label>
+            <fieldset>
+              <legend className="field-label">Choose an existing idea or content item</legend>
               <ul className="mt-2 flex max-h-64 flex-col gap-2 overflow-y-auto">
                 {candidates.map((c) => (
                   <li key={c.id}>
                     <label
                       className={`flex cursor-pointer items-center gap-3 rounded-[12px] border px-3 py-2.5 transition-colors ${
                         selectedId === c.id
-                          ? 'border-copper bg-copper/5'
-                          : 'border-ink/10 hover:bg-paper'
+                          ? "border-copper bg-copper/5"
+                          : "border-ink/10 hover:bg-paper"
                       }`}
                     >
                       <input
@@ -84,15 +100,15 @@ export function ScheduleModal({ date, onClose, onCreateNew }: Props) {
                         <span className="block truncate text-sm font-medium">{c.title}</span>
                         <span className="block text-xs text-muted">
                           {c.platform}
-                          {c.format ? ` · ${c.format}` : ''}
-                          {c.plannedDate ? ` · currently ${formatDateLabel(c.plannedDate)}` : ''}
+                          {c.format ? ` · ${c.format}` : ""}
+                          {c.plannedDate ? ` · currently ${formatDateLabel(c.plannedDate)}` : ""}
                         </span>
                       </span>
                     </label>
                   </li>
                 ))}
               </ul>
-            </div>
+            </fieldset>
 
             <div className="flex items-center justify-between gap-3 border-t border-ink/10 pt-4">
               <Button variant="ghost" onClick={onCreateNew}>
@@ -106,5 +122,5 @@ export function ScheduleModal({ date, onClose, onCreateNew }: Props) {
         )}
       </div>
     </div>
-  )
+  );
 }
